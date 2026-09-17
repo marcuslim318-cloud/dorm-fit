@@ -23,12 +23,12 @@
       "signal-error-night": { "role": "secondary", "displayName": "告警红（夜） Signal Error (Night)", "canonical": "#e5736a", "tonalRamp": ["#3d1815", "#662823", "#8c3b34", "#b8524a", "#e5736a", "#eb918a", "#f2b3ad", "#f9d8d4"] }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "仅 Hero 主标题，全站最大字号。" },
+      "display": { "displayName": "Display", "purpose": "仅落地页 Hero 主标题，全站最大字号。" },
       "headline": { "displayName": "Headline", "purpose": "各区块大标题，如「食物库」「体重记录」。" },
       "stat": { "displayName": "Stat", "purpose": "三大目标大数字专用，只用于数据，强约束 tabular-nums。" },
       "title": { "displayName": "Title", "purpose": "卡片标题、食材名、合计金额。" },
       "body": { "displayName": "Body", "purpose": "正文与说明，说明文字用石墨色。" },
-      "label": { "displayName": "Label", "purpose": "字段标签、微件读数；Hero 英文小标是唯一 eyebrow。" }
+      "label": { "displayName": "Label", "purpose": "字段标签、微件读数；两页页首各一处中文 eyebrow 小标，是唯一 eyebrow。" }
     },
     "shadows": [],
     "motion": [
@@ -62,6 +62,14 @@
       "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line,#e6e6e2);border-radius:12px;padding:13px 22px;background:transparent;color:var(--text,#1a1a1a);font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",\"Segoe UI\",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .12s ease,border-color .12s ease}.ds-btn-ghost:hover{border-color:var(--muted,#6b6b6b)}.ds-btn-ghost:focus-visible{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:2px}.ds-btn-ghost:active{transform:scale(.98)}"
     },
     {
+      "name": "Hero / Page Intro",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "两页页首：落地页为单列满屏 Hero（一句主张 + 一颗主按钮，无配图）；工具页为紧凑页首（eyebrow + 一句 + 主/次按钮），随即进入目标三卡。",
+      "html": "<header class=\"ds-hero\"><div class=\"ds-hero__eyebrow\">三大营养素 · 每日体重</div><h1 class=\"ds-hero__title\">吃得明白，练得出来</h1><p class=\"ds-hero__sub\">按你的体重定制蛋白质、碳水、脂肪目标。</p><a class=\"ds-hero__cta\">开始搭配</a></header>",
+      "css": ".ds-hero{max-width:820px;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",\"Segoe UI\",sans-serif;color:var(--text,#1a1a1a)}.ds-hero__eyebrow{font-size:12px;letter-spacing:.2em;color:var(--accent-text,#0b7a55);font-weight:700}.ds-hero__title{font-size:clamp(34px,5.4vw,58px);line-height:1.12;letter-spacing:-.02em;margin:14px 0 18px;text-wrap:balance}.ds-hero__sub{margin:0;color:var(--muted,#6b6b6b);font-size:17px;max-width:52ch}.ds-hero__cta{display:inline-flex;align-items:center;justify-content:center;margin-top:30px;border-radius:12px;padding:13px 22px;background:var(--accent-fill,#0b7a55);color:var(--on-accent,#ffffff);font-size:15px;font-weight:700;text-decoration:none}.ds-hero__cta:focus-visible{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:2px}"
+    },
+    {
       "name": "Target Card",
       "kind": "card",
       "refersTo": "card-target",
@@ -73,8 +81,8 @@
       "name": "Food Card",
       "kind": "card",
       "refersTo": "card-food",
-      "description": "食物库卡片：名称、每 100g 三大元素读数、加入按钮。",
-      "html": "<div class=\"ds-card-food\"><div class=\"ds-card-food__head\"><span class=\"ds-card-food__name\">鸡胸肉</span><span class=\"ds-card-food__unit\">每100g</span></div><div class=\"ds-card-food__macros\"><div>蛋白<b>23</b></div><div>碳水<b>0</b></div><div>脂肪<b>1.5</b></div></div><button class=\"ds-card-food__add\">＋100g</button></div>",
+      "description": "食物库卡片：名称、每 100g 三大元素读数、按食材真实份量的加入按钮（鸡蛋＋1个、牛奶＋100ml、其余＋100g）。",
+      "html": "<div class=\"ds-card-food\"><div class=\"ds-card-food__head\"><span class=\"ds-card-food__name\">全脂牛奶</span><span class=\"ds-card-food__unit\">每100ml</span></div><div class=\"ds-card-food__macros\"><div>蛋白<b>3.2</b></div><div>碳水<b>5</b></div><div>脂肪<b>3.6</b></div></div><button class=\"ds-card-food__add\">＋100ml</button></div>",
       "css": ".ds-card-food{display:flex;flex-direction:column;gap:10px;background:var(--surface,#ffffff);border:1px solid var(--line,#e6e6e2);border-radius:16px;padding:16px;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:var(--text,#1a1a1a);transition:border-color .12s ease,transform .12s ease}.ds-card-food:hover{border-color:var(--accent,#0f9d6e);transform:translateY(-2px)}.ds-card-food__head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.ds-card-food__name{font-weight:700;font-size:15px}.ds-card-food__unit{color:var(--muted,#6b6b6b);font-size:11px;text-align:right}.ds-card-food__macros{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12px;color:var(--muted,#6b6b6b);font-variant-numeric:tabular-nums}.ds-card-food__macros div{background:var(--bg,#f7f7f5);border:1px solid var(--line,#e6e6e2);border-radius:8px;padding:6px 4px;text-align:center}.ds-card-food__macros b{display:block;font-size:14px;color:var(--text,#1a1a1a);font-weight:700;margin-top:1px}.ds-card-food__add{margin-top:auto;border:1px solid var(--line,#e6e6e2);background:transparent;color:var(--accent-text,#0b7a55);border-radius:10px;padding:9px 0;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:background .12s ease,color .12s ease,border-color .12s ease}.ds-card-food__add:hover{background:var(--accent-fill,#0b7a55);border-color:var(--accent-fill,#0b7a55);color:var(--on-accent,#ffffff)}.ds-card-food__add:focus-visible{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:2px}"
     },
     {
@@ -105,17 +113,17 @@
       "name": "Navigation",
       "kind": "nav",
       "refersTo": null,
-      "description": "60px 吸顶导航：品牌在左，锚点在右，移动端隐藏锚点。",
-      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav__brand\">宿舍食力计划<span class=\"ds-nav__dot\">.</span></span><span class=\"ds-nav__links\"><a class=\"ds-nav__link\" href=\"#targets\">每日目标</a><a class=\"ds-nav__link\" href=\"#foods\">食物库</a></span></nav>",
-      "css": ".ds-nav{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:var(--bg,#f7f7f5);border-bottom:1px solid var(--line,#e6e6e2);font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-nav__brand{font-weight:800;letter-spacing:.02em;font-size:17px;color:var(--text,#1a1a1a)}.ds-nav__dot{color:var(--accent,#0f9d6e)}.ds-nav__links{display:flex;gap:22px;font-size:14px}.ds-nav__link{color:var(--muted,#6b6b6b);text-decoration:none}.ds-nav__link:hover{color:var(--text,#1a1a1a)}.ds-nav__link:focus-visible{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:3px;border-radius:4px}"
+      "description": "60px 吸顶导航：品牌在左（链接回落地页），锚点在右，移动端隐藏锚点；落地页右侧为进入工具页的 Small Ghost 按钮。",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__brand\" href=\"index.html\">宿舍食力计划<span class=\"ds-nav__dot\">.</span></a><span class=\"ds-nav__links\"><a class=\"ds-nav__link\" href=\"#targets\">每日目标</a><a class=\"ds-nav__link\" href=\"#foods\">食物库</a></span></nav>",
+      "css": ".ds-nav{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:var(--bg,#f7f7f5);border-bottom:1px solid var(--line,#e6e6e2);font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-nav__brand{font-weight:800;letter-spacing:.02em;font-size:17px;color:var(--text,#1a1a1a);text-decoration:none}.ds-nav__dot{color:var(--accent,#0f9d6e)}.ds-nav__links{display:flex;gap:22px;font-size:14px}.ds-nav__link{color:var(--muted,#6b6b6b);text-decoration:none}.ds-nav__link:hover{color:var(--text,#1a1a1a)}.ds-nav__link:focus-visible{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:3px;border-radius:4px}"
     },
     {
       "name": "Progress Bar",
       "kind": "custom",
       "refersTo": "progress-track",
-      "description": "签名组件：当日摄入对目标的胶囊进度条，超额时追加翡翠读数。",
-      "html": "<div class=\"ds-progress\"><div class=\"ds-progress__line\"><span>蛋白质</span><span class=\"ds-progress__val\"><b>34</b> / 122g</span></div><div class=\"ds-progress__track\"><i class=\"ds-progress__fill\" style=\"transform:scaleX(.28)\"></i></div></div>",
-      "css": ".ds-progress{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:var(--text,#1a1a1a)}.ds-progress__line{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;font-variant-numeric:tabular-nums}.ds-progress__val b{font-size:15px}.ds-progress__track{height:9px;background:var(--bg,#f7f7f5);border:1px solid var(--line,#e6e6e2);border-radius:999px;overflow:hidden}.ds-progress__fill{display:block;height:100%;transform:scaleX(0);transform-origin:left;background:var(--accent,#0f9d6e);border-radius:999px;transition:transform .25s ease}"
+      "description": "签名组件：当日摄入对目标的胶囊进度条，达标或超出时追加翡翠读数。",
+      "html": "<div class=\"ds-progress\"><div class=\"ds-progress__line\"><span>蛋白质</span><span class=\"ds-progress__val\"><b>134</b> / 122g <span class=\"ds-progress__over\">(已达标 +12g)</span></span></div><div class=\"ds-progress__track\"><i class=\"ds-progress__fill\" style=\"transform:scaleX(1)\"></i></div></div>",
+      "css": ".ds-progress{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:var(--text,#1a1a1a)}.ds-progress__line{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;font-variant-numeric:tabular-nums}.ds-progress__val b{font-size:15px}.ds-progress__over{color:var(--accent-text,#0b7a55);font-weight:700}.ds-progress__track{height:9px;background:var(--bg,#f7f7f5);border:1px solid var(--line,#e6e6e2);border-radius:999px;overflow:hidden}.ds-progress__fill{display:block;height:100%;transform:scaleX(0);transform-origin:left;background:var(--accent,#0f9d6e);border-radius:999px;transition:transform .25s ease}"
     },
     {
       "name": "Profile Modal",
@@ -124,6 +132,14 @@
       "description": "首次进入与「修改资料」共用的浮层，采集性别/身高/体重并推算三大目标。",
       "html": "<div class=\"ds-overlay\"><div class=\"ds-modal\"><h2 class=\"ds-modal__title\">填写个人资料</h2><p class=\"ds-modal__sub\">首次使用请填写资料，系统据此自动推算你每日所需的三大元素。</p><label class=\"ds-modal__field\">体重（kg）<input class=\"ds-modal__input\" type=\"number\" placeholder=\"68.0\"></label><button class=\"ds-modal__cta\">生成我的目标</button></div></div>",
       "css": ".ds-overlay{position:relative;padding:24px;background:rgba(0,0,0,.55);border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-modal{background:var(--surface,#ffffff);border:1px solid var(--line,#e6e6e2);border-radius:16px;padding:28px;max-width:420px;width:100%;color:var(--text,#1a1a1a)}.ds-modal__title{margin:0 0 8px;font-size:24px;font-weight:800}.ds-modal__sub{margin:0 0 22px;color:var(--muted,#6b6b6b);font-size:14px}.ds-modal__field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted,#6b6b6b)}.ds-modal__input{background:var(--surface,#ffffff);color:var(--text,#1a1a1a);border:1px solid var(--line,#e6e6e2);border-radius:10px;padding:9px 12px;font-size:15px;font-family:inherit;font-variant-numeric:tabular-nums}.ds-modal__input:focus{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:1px}.ds-modal__cta{margin-top:26px;width:100%;border:1px solid transparent;border-radius:12px;padding:13px 22px;background:var(--accent-fill,#0b7a55);color:var(--on-accent,#ffffff);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .12s ease}.ds-modal__cta:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Bottom Tab Bar",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "移动端（≤760px）固定底部导航，五项：目标、食材、搭配、体重、采购。替代隐藏的顶部锚点，内联 SVG 图标，高度 56px，安全区适配。",
+      "html": "<nav class=\"ds-tabbar\"><a href=\"#targets\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M9 9h6v6H9z\"/></svg>目标</a><a href=\"#foods\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\"/></svg>食材</a><a href=\"#plan\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M9 12h6M9 16h6\"/></svg>搭配</a><a href=\"#weight\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2v20M17 5H7\"/></svg>体重</a><a href=\"#purchases\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6\"/></svg>采购</a></nav>",
+      "css": ".ds-tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--surface,#ffffff);border-top:1px solid var(--line,#e6e6e2);justify-content:space-around;align-items:center;padding-bottom:env(safe-area-inset-bottom,0);font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:var(--text,#1a1a1a)}.ds-tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted,#6b6b6b);text-decoration:none;font-size:11px;flex:1;min-height:44px;justify-content:center;padding:4px 0}.ds-tabbar a.active,.ds-tabbar a:hover{color:var(--accent-text,#0b7a55)}.ds-tabbar svg{width:22px;height:22px}"
     }
   ],
   "narrative": {
@@ -144,7 +160,8 @@
       { "name": "数字等宽律", "body": "凡克数、重量、金额、目标值一律 font-variant-numeric: tabular-nums。读数是这个世界的主角，绝不允许因数字变宽而抖动。", "section": "typography" },
       { "name": "系统字栈律", "body": "不引入任何 webfont。新页面沿用系统中文黑体栈，缺失字重由 CSS 回落承担。", "section": "typography" },
       { "name": "描边即分层律", "body": "需要区分层级时，用 1px hairline 描边或一道色阶，不得添加投影、模糊、玻璃拟态或渐变洗光。悬浮是纸的堆叠，不是物体的浮起。", "section": "elevation" },
-      { "name": "四档圆角律", "body": "除卡片 16px、控制件 12px、输入 10px、微件 8px 与进度条胶囊外，不得出现任何其它圆角值。混入胶囊按钮或直角卡片即为破形。", "section": "shapes" }
+      { "name": "四档圆角律", "body": "除卡片 16px、控制件 12px、输入 10px、微件 8px 与进度条胶囊外，不得出现任何其它圆角值。混入胶囊按钮或直角卡片即为破形。", "section": "shapes" },
+      { "name": "触控目标律", "body": "移动端所有可交互元素最小 44×44px（按钮、步进器、删除确认、输入框、标签栏项）。通过 min-height/min-width 与 padding 保证，不依赖 hover 完成关键操作。", "section": "components" }
     ],
     "dos": [
       "Do 所有克数、体重、金额、目标值统一 tabular-nums（数字等宽律）。",

@@ -3,7 +3,8 @@
 ## 项目定位
 
 - 项目：宿舍增肌减脂计划（`dorm-fit`），给一名学生（男生、身高 178cm、体重 68kg，宿舍可正常做饭）制定并记录三大营养素搭配与每日体重的一体化静态网站。
-- 技术栈：单文件 `index.html`（原生 HTML + CSS + JavaScript），**零依赖、零构建、零第三方库**；数据持久化用浏览器 `localStorage`；体重曲线用内联 SVG 手绘。
+- 技术栈：两页静态站点（原生 HTML + CSS + JavaScript）——`index.html` 落地页、`dorm-fit.html` 工具页、共享样式表 `styles.css`，**零依赖、零构建、零第三方库**；数据持久化用浏览器 `localStorage`；体重曲线用内联 SVG 手绘。
+- 页面职责：`index.html` 只做入口（一句话 + 进入 `dorm-fit.html` 的按钮，按有无资料显示「开始搭配 / 继续搭配」）；`dorm-fit.html` 承载全部功能（目标、食物库、搭配、体重、采购）与首登资料弹窗。两页同源，共享同一批 `localStorage` 键。
 - 部署面：纯静态托管（Netlify Drop 拖拽部署 / GitHub Pages），**无后端、无账号服务器、无联网上传**。
 - 平台：Windows，PowerShell。
 
@@ -11,7 +12,7 @@
 
 事实冲突时按此顺序：
 
-1. 当前源码 `dorm-fit/index.html`（唯一交付物）与运行证据（`node --check`、自检脚本、浏览器实测）。
+1. 当前源码 `dorm-fit/index.html` + `dorm-fit/dorm-fit.html` + `dorm-fit/styles.css`（交付物）与运行证据（`node --check`、自检脚本、浏览器实测）。
 2. 本宪法 `dorm-fit/AGENTS.md`。
 3. 用户在本会话中的明确确认。
 
@@ -19,13 +20,13 @@
 
 ## Owner Map（唯一 owner）
 
-- 三大元素系数与目标计算：`index.html` 的 `COEF` / `computeTargets()`。系数硬性为蛋白质 1.8、碳水 3、脂肪 0.8（g/kg 体重）。
+- 三大元素系数与目标计算：`dorm-fit.html` 的 `COEF` / `computeTargets()`。系数硬性为蛋白质 1.8、碳水 3、脂肪 0.8（g/kg 体重）。
 - 用户资料：`localStorage` 键 `dorm-fit-profile`（性别、身高、体重）。**体重决定三大目标；性别与身高仅存档。**
 - 食物库与每 100g 营养：`FOODS` 数据 + `#foodGrid` 渲染。
 - 每日搭配与当日总量：`localStorage` 键 `dorm-fit-log`（按日期分组的 `[{id, g}]`）。
 - 体重记录与曲线：`localStorage` 键 `dorm-fit-weight` + `renderChart()`。
 - 食材采购明细：`localStorage` 键 `dorm-fit-purchases`。
-- 展示语义、配色、圆角：样式表 `:root` 变量（单一翠绿点缀色）。
+- 展示语义、配色、圆角：`styles.css` 的 `:root` 变量（单一翠绿点缀色），两页共用。
 
 ## 需求合同（事实，硬性）
 
@@ -57,7 +58,7 @@
 
 | 命令 | 用途 |
 |---|---|
-| `node --check <提取的脚本>` | 抽取 `index.html` 内联脚本做语法校验 |
+| `node --check <提取的脚本>` | 抽取 `dorm-fit.html` 内联脚本做语法校验（`index.html` 仅一小段入口脚本） |
 | `node <断言脚本>` | DOM/localStorage 打桩，验证目标计算、总量、持久化、排序等逻辑 |
 
 - 项目**无** build / lint / unit / e2e 脚本，不得虚构或假装这些命令存在。
@@ -67,7 +68,7 @@
 ## 实现规则
 
 - 从合同与目标计算出发，不从 UI 倒推核心。
-- 保持单文件、原生能力优先（`localStorage`、`<input type="date">`、SVG），不引入并行体系。
+- 保持两页 + 一张共享样式表、原生能力优先（`localStorage`、`<input type="date">`、SVG），不引入并行体系、不引入外部图片或 CDN。
 - 用户可见文案统一简体中文，聚焦三大元素 / 体重 / 采购，不得夹带规定外话题。
 - 数据键名、字段语义变更必须同步本宪法。
 - 首次进入无 `dorm-fit-profile` 时，必须弹出资料填写（性别 / 身高 / 体重）并据此生成目标。

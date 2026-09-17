@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>今日搭配 · 宿舍食力计划</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="overlay" id="onboard" role="dialog" aria-modal="true" aria-labelledby="obTitle" aria-describedby="obSub" hidden>
+  <div class="modal">
+    <h2 id="obTitle">填写个人资料</h2>
+    <p class="sub" id="obSub">首次使用请填写资料，系统据此自动推算你每日所需的三大元素。资料只保存在本浏览器。</p>
+    <div class="fields">
+      <label class="field" for="fGender">性别
+        <select id="fGender">
+          <option value="男">男</option>
+          <option value="女">女</option>
+          <option value="其他">其他</option>
+        </select>
+      </label>
+      <label class="field" for="fHeight">身高（cm）
+        <input type="number" id="fHeight" min="100" max="250" step="1" placeholder="178">
+      </label>
+      <label class="field" for="fWeight">体重（kg）
+        <input type="number" id="fWeight" min="30" max="200" step="0.1" placeholder="68">
+      </label>
+    </div>
+    <div id="obErr" class="err" role="alert"></div>
+    <div class="actions">
+      <button class="btn primary" id="obSave">生成我的目标</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <a class="brand" href="index.html">宿舍食力计划<span class="dot">.</span></a>
+  <div class="navlinks">
+    <a href="#targets">每日目标</a>
+    <a href="#foods">食物库</a>
+    <a href="#plan">今日搭配</a>
+    <a href="#weight">体重记录</a>
+    <a href="#purchases">采购记录</a>
+  </div>
+</nav>
+
+<main>
+
+  <header class="page-intro">
+    <div class="eyebrow">三大营养素 · 每日体重</div>
+    <h1>你的每日目标</h1>
+    <p class="sub" id="pageSub">按体重推算的三大元素目标，确定后往下挑食材、调克数。</p>
+    <div class="ctas">
+      <a class="btn primary" href="#plan">开始今日搭配</a>
+      <a class="btn ghost" href="#weight">记录体重</a>
+    </div>
+  </header>
+
+  <section id="targets" data-reveal>
+    <div class="profilebar">
+      <span id="profileText">尚未填写资料</span>
+      <button class="btn ghost small" id="editProfile">修改资料</button>
+    </div>
+    <div class="targets">
+      <div class="tcard">
+        <div>
+          <div class="label">蛋白质目标 / 天</div>
+          <div class="big" id="tP">122<span class="unit">g</span></div>
+        </div>
+        <div class="basis" id="bP">1.8g × 68kg</div>
+      </div>
+      <div class="tcard">
+        <div>
+          <div class="label">碳水目标 / 天</div>
+          <div class="big" id="tC">204<span class="unit">g</span></div>
+        </div>
+        <div class="basis" id="bC">3g × 68kg</div>
+      </div>
+      <div class="tcard">
+        <div>
+          <div class="label">脂肪目标 / 天</div>
+          <div class="big" id="tF">54<span class="unit">g</span></div>
+        </div>
+        <div class="basis" id="bF">0.8g × 68kg</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="foods" data-reveal>
+    <div class="sec-head">
+      <h2>食物库</h2>
+      <p>学生能负担的常见食材，按每 100 克可食用部分标注三大元素。点食材卡片上的按钮加入今日搭配。</p>
+    </div>
+    <div id="foodGrid"></div>
+  </section>
+
+  <section id="plan" data-reveal>
+    <div class="sec-head">
+      <h2>今日搭配</h2>
+      <p>选择日期，从食物库添加食材并调整克数，实时对照三大目标。</p>
+    </div>
+    <div class="datebar">
+      <label class="field" for="dayInput">记录日期
+        <input type="date" id="dayInput">
+      </label>
+    </div>
+    <div class="plan-wrap">
+      <div class="panel">
+        <h3>已选食材</h3>
+        <div id="selList"></div>
+      </div>
+      <div class="panel">
+        <h3>当日总量 vs 目标</h3>
+        <div id="totals"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="weight" data-reveal>
+    <div class="sec-head">
+      <h2>体重记录</h2>
+      <p>每天固定时间（起床后空腹）称一次，记录体重并查看变化趋势。目标不会随体重自动变化，需要时用上方「修改资料」更新。</p>
+    </div>
+    <div class="panel">
+      <form class="weight-form" id="wForm">
+        <label class="field" for="wDate">日期
+          <input type="date" id="wDate">
+        </label>
+        <label class="field" for="wKg">体重（kg）
+          <input type="number" id="wKg" step="0.1" min="30" max="200" placeholder="68.0">
+        </label>
+        <button class="btn primary" type="submit" id="wSave">保存记录</button>
+      </form>
+      <div id="wMsg" class="msg" role="status"></div>
+      <div id="wErr" class="err" role="alert"></div>
+      <div class="chartbox" id="wChart"></div>
+      <div class="wlist" id="wList"></div>
+    </div>
+  </section>
+
+  <section id="purchases" data-reveal>
+    <div class="sec-head">
+      <h2>采购记录</h2>
+      <p>零散采购（如一次买 2–3 天的食材）时，按明细记下花了多少，方便掌握开销。</p>
+    </div>
+    <form class="panel" id="pForm">
+      <div class="datebar">
+        <label class="field" for="pDate">采购日期
+          <input type="date" id="pDate">
+        </label>
+        <label class="field" for="pNote">备注（可选）
+          <input type="text" id="pNote" placeholder="如：约 2–3 天食材">
+        </label>
+      </div>
+      <div id="pItems"></div>
+      <button class="btn ghost small" type="button" id="pAddItem">＋ 添加一项</button>
+      <div class="ptotal"><span>本次合计</span><b id="pDraftTotal">¥0.00</b></div>
+      <div id="pMsg" class="msg" role="status"></div>
+      <div id="pErr" class="err" role="alert"></div>
+      <button class="btn primary" type="submit" id="pSave">保存本次采购</button>
+    </form>
+    <div class="panel" style="margin-top:20px">
+      <h3>采购历史</h3>
+      <div id="pList"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>数据仅保存在本浏览器的 localStorage，更换设备或清除浏览器数据会丢失。非医疗建议，仅供参考。</footer>
+
+<nav class="tabbar" aria-label="主导航">
+  <a href="#targets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>目标</a>
+  <a href="#foods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>食材</a>
+  <a href="#plan" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M9 12h6M9 16h6"/></svg>搭配</a>
+  <a href="#weight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H7"/></svg>体重</a>
+  <a href="#purchases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>采购</a>
+</nav>
+
+<script>
+const COEF = { p: 1.8, c: 3, f: 0.8 };
+
+const FOODS = [
+  { id:'egg',     name:'鸡蛋',        cat:'蛋白质', p:13,  c:1,  f:9,   unit:'1个约50g' },
+  { id:'chicken', name:'鸡胸肉',      cat:'蛋白质', p:23,  c:0,  f:1.5, unit:'' },
+  { id:'thigh',   name:'去皮鸡腿肉',  cat:'蛋白质', p:20,  c:0,  f:5,   unit:'' },
+  { id:'pork',    name:'瘦猪里脊',    cat:'蛋白质', p:22,  c:0,  f:4,   unit:'' },
+  { id:'fish',    name:'巴沙鱼柳',    cat:'蛋白质', p:15,  c:0,  f:3,   unit:'' },
+  { id:'tuna',    name:'水浸金枪鱼罐头',cat:'蛋白质',p:20,  c:0,  f:1,   unit:'' },
+  { id:'tofu',    name:'嫩豆腐',      cat:'蛋白质', p:6,   c:2,  f:3,   unit:'' },
+  { id:'milk',    name:'全脂牛奶',    cat:'蛋白质', p:3.2, c:5,  f:3.6, unit:'每100ml' },
+  { id:'yogurt',  name:'无糖酸奶',    cat:'蛋白质', p:4,   c:6,  f:3,   unit:'' },
+  { id:'rice',    name:'大米（生）',  cat:'碳水',   p:7.5, c:78, f:1,   unit:'煮前称量' },
+  { id:'oat',     name:'燕麦片',      cat:'碳水',   p:13,  c:60, f:7,   unit:'' },
+  { id:'bread',   name:'全麦面包',    cat:'碳水',   p:10,  c:45, f:3,   unit:'' },
+  { id:'potato',  name:'土豆',        cat:'碳水',   p:2,   c:17, f:0,   unit:'' },
+  { id:'sweetpot',name:'红薯',        cat:'碳水',   p:1.5, c:20, f:0,   unit:'' },
+  { id:'banana',  name:'香蕉',        cat:'碳水',   p:1.2, c:22, f:0,   unit:'' },
+  { id:'apple',   name:'苹果',        cat:'碳水',   p:0.3, c:14, f:0,   unit:'' },
+  { id:'pb',      name:'花生酱',      cat:'脂肪',   p:25,  c:16, f:50,  unit:'' },
+  { id:'nuts',    name:'混合坚果',    cat:'脂肪',   p:15,  c:15, f:55,  unit:'' },
+  { id:'oil',     name:'菜籽油',      cat:'脂肪',   p:0,   c:0,  f:100, unit:'每100ml' },
+  { id:'broccoli',name:'西兰花',      cat:'蔬菜',   p:4,   c:5,  f:0.5, unit:'' },
+  { id:'cabbage', name:'小白菜',      cat:'蔬菜',   p:2,   c:2,  f:0,   unit:'' },
+  { id:'carrot',  name:'胡萝卜',      cat:'蔬菜',   p:1,   c:10, f:0,   unit:'' },
+  { id:'tomato',  name:'番茄',        cat:'蔬菜',   p:1,   c:4,  f:0,   unit:'' },
+];
+const BY_ID = Object.fromEntries(FOODS.map(f => [f.id, f]));
+
+function por(f){
+  if (f.unit === '每100ml') return { g: 100, label: '100ml' };
+  if (f.unit.includes('个')) return { g: 50, label: '1个' };
+  return { g: 100, label: '100g' };
+}
+
+function load(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } }
+function save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function money(n){ return '¥' + (Math.round(n*100)/100).toFixed(2); }
+
+let profile = load('dorm-fit-profile', null);
+let TARGETS = { p: 122, c: 204, f: 54 };
+function computeTargets(kg){
+  return { p: Math.round(kg*COEF.p), c: Math.round(kg*COEF.c), f: Math.round(kg*COEF.f) };
+}
+
+let log = load('dorm-fit-log', {});
+let weights = load('dorm-fit-weight', []);
+let purchases = load('dorm-fit-purchases', []);
+let day = todayStr();
+
+const $ = id => document.getElementById(id);
+
+function renderFoods(){
+  const cats = ['蛋白质','碳水','脂肪','蔬菜'];
+  $('foodGrid').innerHTML = cats.map(cat => {
+    const cards = FOODS.filter(f => f.cat === cat).map(f => {
+      const p = por(f);
+      return `
+      <div class="fcard">
+        <div class="fhead">
+          <span class="fname">${f.name}</span>
+          <span class="funit">${f.unit || '每100g'}</span>
+        </div>
+        <div class="macros">
+          <div>蛋白<b>${f.p}</b></div>
+          <div>碳水<b>${f.c}</b></div>
+          <div>脂肪<b>${f.f}</b></div>
+        </div>
+        <button class="fadd" data-action="add" data-id="${f.id}" data-g="${p.g}" aria-label="添加${f.name}${p.label}">＋${p.label}</button>
+      </div>`;
+    }).join('');
+    return `<div class="cat-label">${cat}</div><div class="foodgrid">${cards}</div>`;
+  }).join('');
+}
+
+function dayItems(){ return (log[day] || []).filter(Boolean); }
+function saveDay(){ save('dorm-fit-log', log); renderSelected(); renderTotals(); }
+
+function addFood(id, grams){
+  const items = log[day] = log[day] || [];
+  const it = items.find(x => x.id === id);
+  if (it) it.g = Math.max(0, it.g + grams);
+  else items.push({ id, g: grams });
+  log[day] = items.filter(x => x.g > 0);
+  saveDay();
+}
+
+function renderSelected(){
+  const items = dayItems();
+  const box = $('selList');
+  if (!items.length) {
+    box.innerHTML = '<div class="empty">这一天还没有搭配，去上面食物库添加食材开始。</div>';
+    return;
+  }
+  box.innerHTML = items.map(it => {
+    const f = BY_ID[it.id], k = it.g/100;
+    return `
+      <div class="selrow">
+        <span class="sname">${f.name}</span>
+        <span class="gramwrap">
+          <input class="sgram" type="number" min="1" step="10" value="${it.g}"
+            data-action="grams" data-id="${f.id}" aria-label="${f.name}的克数（g）">
+          <span class="gunit" aria-hidden="true">g</span>
+        </span>
+        <div class="sstepper">
+          <button class="sstep" data-action="minus" data-id="${f.id}" aria-label="${f.name}减50克">−</button>
+          <button class="sstep" data-action="plus" data-id="${f.id}" aria-label="${f.name}加50克">+</button>
+        </div>
+        <span class="smeta">P ${(f.p*k).toFixed(1)} · C ${(f.c*k).toFixed(1)} · F ${(f.f*k).toFixed(1)}</span>
+        ${armed === 'food:' + f.id
+          ? `<span class="delask"><button class="sdel danger" data-confirmdel="food:${f.id}">确认移除</button><button class="sdel" data-cancel="1">取消</button></span>`
+          : `<button class="sdel" data-ask="food:${f.id}" aria-label="移除${f.name}">移除</button>`}
+      </div>`;
+  }).join('');
+}
+
+function renderTotals(){
+  const t = { p:0, c:0, f:0 };
+  dayItems().forEach(it => {
+    const f = BY_ID[it.id], k = it.g/100;
+    t.p += f.p*k; t.c += f.c*k; t.f += f.f*k;
+  });
+  const names = { p:'蛋白质', c:'碳水', f:'脂肪' };
+  $('totals').innerHTML = ['p','c','f'].map(k => {
+    const target = TARGETS[k];
+    const diff = Math.round(t[k] - target);
+    const over = diff >= 0 ? `<span class="over">(已达标${diff > 0 ? ' +' + diff + 'g' : ''})</span>` : '';
+    const ratio = Math.min(1, t[k]/target);
+    return `
+      <div class="totrow">
+        <div class="barline">
+          <span>${names[k]}</span>
+          <span class="val"><b>${t[k].toFixed(0)}</b> / ${target}g ${over}</span>
+        </div>
+        <div class="bar"><i style="transform:scaleX(${ratio.toFixed(3)})"></i></div>
+      </div>`;
+  }).join('');
+}
+
+function renderTargets(){
+  const w = profile ? profile.weight : 68;
+  const coefTxt = { p:'1.8g', c:'3g', f:'0.8g' };
+  ['p','c','f'].forEach(k => {
+    $('t' + k.toUpperCase()).innerHTML = TARGETS[k] + '<span class="unit">g</span>';
+    $('b' + k.toUpperCase()).textContent = coefTxt[k] + ' × ' + w + 'kg';
+  });
+  $('profileText').innerHTML = profile
+    ? `<b>${profile.gender}</b> · 身高 <b>${profile.height}cm</b> · 体重 <b>${profile.weight}kg</b>`
+    : '尚未填写资料';
+  $('pageSub').textContent = profile
+    ? `按你的体重（${w}kg）定制三大营养素：蛋白质 ${TARGETS.p}g、碳水 ${TARGETS.c}g、脂肪 ${TARGETS.f}g。用平价食材，每天自己搭配、自己记录。`
+    : '按你的体重定制三大营养素，用平价食材，每天自己搭配、自己记录。';
+}
+
+let lastFocus = null;
+function setModalOpen(open){
+  const overlay = $('onboard');
+  overlay.hidden = !open;
+  document.body.style.overflow = open ? 'hidden' : '';
+  if (open) { lastFocus = document.activeElement; $('fGender').focus(); }
+  else if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+$('onboard').addEventListener('click', e => { if (e.target.id === 'onboard' && profile) setModalOpen(false); });
+$('onboard').addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const f = Array.from($('onboard').querySelectorAll('button, input, select, a[href]'));
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('onboard').hidden && profile) setModalOpen(false);
+});
+$('editProfile').addEventListener('click', () => openProfile());
+$('obSave').addEventListener('click', () => {
+  const gender = $('fGender').value;
+  const height = parseFloat($('fHeight').value);
+  const weight = parseFloat($('fWeight').value);
+  const err = $('obErr');
+  if (!(height >= 100 && height <= 250)) { err.textContent = '请输入 100–250 之间的身高（cm）。'; $('fHeight').focus(); return; }
+  if (!(weight >= 30 && weight <= 200)) { err.textContent = '请输入 30–200 之间的体重（kg）。'; $('fWeight').focus(); return; }
+  err.textContent = '';
+  profile = { gender, height, weight };
+  save('dorm-fit-profile', profile);
+  TARGETS = computeTargets(weight);
+  setModalOpen(false);
+  renderTargets(); renderTotals();
+});
+
+function openProfile(){
+  const onboarding = !profile;
+  $('obTitle').textContent = onboarding ? '填写个人资料' : '修改个人资料';
+  $('obSave').textContent = onboarding ? '生成我的目标' : '保存并更新目标';
+  if (profile) { $('fGender').value = profile.gender; $('fHeight').value = profile.height; $('fWeight').value = profile.weight; }
+  $('obErr').textContent = '';
+  setModalOpen(true);
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const a = el.dataset.action, id = el.dataset.id;
+  if (a === 'add') addFood(id, +(el.dataset.g || 100));
+  else if (a === 'plus') addFood(id, 50);
+  else if (a === 'minus') addFood(id, -50);
+});
+
+let armed = '';
+function renderByKind(kind){
+  if (kind === 'food') renderSelected();
+  else if (kind === 'weight') renderWeightList();
+  else renderPurchases();
+}
+function doDelete(key){
+  const i = key.indexOf(':'), kind = key.slice(0, i), val = key.slice(i + 1);
+  if (kind === 'food') { log[day] = (log[day] || []).filter(x => x.id !== val); saveDay(); }
+  else if (kind === 'weight') { weights = weights.filter(x => x.d !== val); save('dorm-fit-weight', weights); renderWeight(); }
+  else { purchases = purchases.filter(p => String(p.id) !== val); save('dorm-fit-purchases', purchases); renderPurchases(); }
+}
+document.addEventListener('click', e => {
+  const ask = e.target.closest('[data-ask]');
+  if (ask) { armed = ask.dataset.ask; renderByKind(armed.split(':')[0]); return; }
+  const conf = e.target.closest('[data-confirmdel]');
+  if (conf) { const k = conf.dataset.confirmdel; armed = ''; doDelete(k); return; }
+  const cancel = e.target.closest('[data-cancel]');
+  if (cancel && armed) { const kind = armed.split(':')[0]; armed = ''; renderByKind(kind); }
+});
+document.addEventListener('change', e => {
+  if (!e.target.matches('[data-action="grams"]')) return;
+  const g = parseInt(e.target.value, 10);
+  const it = dayItems().find(x => x.id === e.target.dataset.id);
+  if (it && !isNaN(g)) { it.g = Math.max(1, g); saveDay(); }
+  else renderSelected();
+});
+$('dayInput').addEventListener('change', e => {
+  day = e.target.value || todayStr();
+  renderSelected(); renderTotals();
+});
+
+function renderChart(){
+  const box = $('wChart');
+  if (weights.length < 2) {
+    box.innerHTML = '<div class="empty">记录两次以上体重后，这里显示变化曲线。</div>';
+    return;
+  }
+  const W = 800, H = 280, pad = 34;
+  const ws = weights.map(e => e.w);
+  const min = Math.floor(Math.min(...ws)) - 1, max = Math.ceil(Math.max(...ws)) + 1;
+  const x = i => pad + i*(W - 2*pad)/(weights.length - 1);
+  const y = w => pad + (max - w)/(max - min)*(H - 2*pad);
+  const step = Math.ceil(weights.length / 8);
+  const pts = weights.map((e,i) => x(i) + ',' + y(e.w)).join(' ');
+  const dots = weights.map((e,i) => {
+    const showDate = i % step === 0 || i === weights.length - 1;
+    return `<circle cx="${x(i)}" cy="${y(e.w)}" r="4.5" fill="var(--accent)"/>` +
+      (showDate ? `<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${e.d.slice(5)}</text>` : '') +
+      `<text x="${x(i)}" y="${y(e.w)-10}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">${e.w}</text>`;
+  }).join('');
+  const grid = [min, (min+max)/2, max].map(g => `
+    <line x1="${pad}" y1="${y(g)}" x2="${W-pad}" y2="${y(g)}" stroke="var(--line)" stroke-dasharray="3 4"/>
+    <text x="0" y="${y(g)+4}" font-size="11" fill="var(--muted)">${g}kg</text>`).join('');
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="体重变化曲线，共 ${weights.length} 条记录">
+    ${grid}<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>${dots}</svg>`;
+}
+function renderWeightList(){
+  const box = $('wList');
+  if (!weights.length) { box.innerHTML = ''; return; }
+  const rows = weights.map((e, idx) => {
+    const prev = weights[idx-1];
+    const d = prev ? ((e.w - prev.w) >= 0 ? '+' : '') + (e.w - prev.w).toFixed(1) + 'kg（较上次）' : '首次记录';
+    return `<div class="wrow">
+      <span class="wdate">${e.d.slice(5)}</span>
+      <span class="wkg">${e.w.toFixed(1)} kg</span>
+      <span class="delta">${d}</span>
+      ${armed === 'weight:' + e.d
+        ? `<span class="delask"><button class="sdel danger" data-confirmdel="weight:${e.d}">确认删除</button><button class="sdel" data-cancel="1">取消</button></span>`
+        : `<button class="sdel" data-ask="weight:${e.d}" aria-label="删除 ${e.d} 的体重记录">删除</button>`}
+    </div>`;
+  }).join('');
+  box.innerHTML = `<div class="cat-label">历史记录</div>${rows}`;
+}
+function renderWeight(){ renderChart(); renderWeightList(); }
+
+$('wForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const d = $('wDate').value || todayStr();
+  const w = parseFloat($('wKg').value);
+  const msg = $('wMsg'), err = $('wErr');
+  if (isNaN(w) || w < 30 || w > 200) {
+    err.textContent = '请输入 30–200 之间的体重数值。';
+    msg.textContent = '';
+    $('wKg').focus();
+    return;
+  }
+  err.textContent = '';
+  const existed = weights.some(x => x.d === d);
+  weights = weights.filter(x => x.d !== d);
+  weights.push({ d, w });
+  weights.sort((a,b) => a.d < b.d ? -1 : 1);
+  save('dorm-fit-weight', weights);
+  $('wKg').value = '';
+  renderWeight();
+  msg.textContent = (d === todayStr() ? '今天' : d) + (existed ? ' 的记录已更新。' : ' 的记录已保存。');
+});
+let pDraft = [{ name:'', qty:'', amount:'' }];
+
+function renderPDraft(){
+  $('pItems').innerHTML = pDraft.map((it, i) => `
+    <div class="prow">
+      <input type="text" placeholder="食材名称" value="${it.name}" data-pi="${i}" data-pf="name" aria-label="第 ${i+1} 项食材名称">
+      <input type="text" placeholder="数量" value="${it.qty}" data-pi="${i}" data-pf="qty" aria-label="第 ${i+1} 项数量">
+      <input type="number" min="0" step="0.01" placeholder="金额" value="${it.amount}" data-pi="${i}" data-pf="amount" aria-label="第 ${i+1} 项金额">
+      <button class="sstep" type="button" data-pdel="${i}" title="删除此项" aria-label="删除第 ${i+1} 项">×</button>
+    </div>`).join('');
+  const total = pDraft.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0);
+  $('pDraftTotal').textContent = money(total);
+}
+$('pAddItem').addEventListener('click', () => { pDraft.push({ name:'', qty:'', amount:'' }); renderPDraft(); });
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (!el.dataset || el.dataset.pi === undefined) return;
+  pDraft[+el.dataset.pi][el.dataset.pf] = el.value;
+  if (el.dataset.pf === 'amount') {
+    $('pDraftTotal').textContent = money(pDraft.reduce((s,it) => s + (parseFloat(it.amount) || 0), 0));
+  }
+});
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-pdel]');
+  if (!btn) return;
+  pDraft.splice(+btn.dataset.pdel, 1);
+  if (!pDraft.length) pDraft.push({ name:'', qty:'', amount:'' });
+  renderPDraft();
+});
+$('pForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const msg = $('pMsg'), err = $('pErr');
+  const items = pDraft
+    .filter(it => it.name.trim() !== '' || parseFloat(it.amount) > 0)
+    .map(it => ({ name: it.name.trim() || '未命名', qty: it.qty.trim(), amount: parseFloat(it.amount) || 0 }));
+  if (!items.length) { err.textContent = '至少填写一项食材名称或金额。'; msg.textContent = ''; return; }
+  err.textContent = '';
+  purchases.push({ id: Date.now(), date: $('pDate').value || todayStr(), note: $('pNote').value.trim(), items });
+  save('dorm-fit-purchases', purchases);
+  $('pNote').value = '';
+  pDraft = [{ name:'', qty:'', amount:'' }];
+  renderPDraft(); renderPurchases();
+  msg.textContent = '已保存本次采购。';
+});
+function renderPurchases(){
+  const box = $('pList');
+  if (!purchases.length) { box.innerHTML = '<div class="empty">还没有采购记录，在上方按明细记一笔。</div>'; return; }
+  const sorted = [...purchases].sort((a,b) => a.date < b.date ? 1 : -1);
+  const total = purchases.reduce((s,p) => s + p.items.reduce((a,i) => a + i.amount, 0), 0);
+  const head = `
+    <div class="summary">
+      <div>累计花费<b>${money(total)}</b></div>
+      <div>采购次数<b>${purchases.length}</b></div>
+    </div>`;
+  const entries = sorted.map(p => {
+    const sum = p.items.reduce((a,i) => a + i.amount, 0);
+    const rows = p.items.map(i => `
+      <div class="pitem">
+        <span>${i.name}</span>
+        <span class="qty">${i.qty || '—'}</span>
+        <span class="amt">${money(i.amount)}</span>
+      </div>`).join('');
+    return `
+      <div class="pentry">
+        <div class="phead">
+          <span class="pdate">${p.date}</span>
+          <span class="ptag">${p.note || ''}</span>
+          ${armed === 'purchase:' + p.id
+            ? `<span class="delask"><button class="sdel danger" data-confirmdel="purchase:${p.id}">确认删除</button><button class="sdel" data-cancel="1">取消</button></span>`
+            : `<button class="sdel" data-ask="purchase:${p.id}" aria-label="删除 ${p.date} 的采购记录">删除</button>`}
+        </div>
+        ${rows}
+        <div class="ptot">合计 ${money(sum)}</div>
+      </div>`;
+  }).join('');
+  box.innerHTML = head + entries;
+}
+
+$('dayInput').value = day;
+$('wDate').value = todayStr();
+$('pDate').value = todayStr();
+
+renderFoods();
+renderTargets();
+renderSelected();
+renderTotals();
+renderWeight();
+renderPDraft();
+renderPurchases();
+if (!profile) openProfile();
+
+const io = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+}), { threshold: 0.12 });
+document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
