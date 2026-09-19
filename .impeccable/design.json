@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-09-17T00:00:00Z",
-  "title": "Design System: 宿舍增肌减脂计划",
+  "title": "Design System: 谭食力",
   "extensions": {
     "colorMeta": {
       "emerald": { "role": "primary", "displayName": "克制的翡翠 Restrained Emerald", "canonical": "#0f9d6e", "tonalRamp": ["#063a29", "#0a5a40", "#0d7a57", "#0f9d6e", "#28b487", "#5fcba5", "#9fdfc6", "#dcf5eb"] },
@@ -114,7 +114,7 @@
       "kind": "nav",
       "refersTo": null,
       "description": "60px 吸顶导航：品牌在左（链接回落地页），锚点在右，移动端隐藏锚点；落地页右侧为进入工具页的 Small Ghost 按钮。",
-      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__brand\" href=\"index.html\">宿舍食力计划<span class=\"ds-nav__dot\">.</span></a><span class=\"ds-nav__links\"><a class=\"ds-nav__link\" href=\"#targets\">每日目标</a><a class=\"ds-nav__link\" href=\"#foods\">食物库</a></span></nav>",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__brand\" href=\"index.html\">谭食力</a><span class=\"ds-nav__links\"><a class=\"ds-nav__link\" href=\"#targets\">每日目标</a><a class=\"ds-nav__link\" href=\"#foods\">食物库</a></span></nav>",
       "css": ".ds-nav{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:var(--bg,#f7f7f5);border-bottom:1px solid var(--line,#e6e6e2);font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-nav__brand{font-weight:800;letter-spacing:.02em;font-size:17px;color:var(--text,#1a1a1a);text-decoration:none}.ds-nav__dot{color:var(--accent,#0f9d6e)}.ds-nav__links{display:flex;gap:22px;font-size:14px}.ds-nav__link{color:var(--muted,#6b6b6b);text-decoration:none}.ds-nav__link:hover{color:var(--text,#1a1a1a)}.ds-nav__link:focus-visible{outline:2px solid var(--accent-fill,#0b7a55);outline-offset:3px;border-radius:4px}"
     },
     {

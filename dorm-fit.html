@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light dark">
-<title>今日搭配 · 宿舍食力计划</title>
+<title>谭食力</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -36,7 +36,7 @@
 </div>
 
 <nav>
-  <a class="brand" href="index.html">宿舍食力计划<span class="dot">.</span></a>
+  <a class="brand" href="index.html">谭食力</a>
   <div class="navlinks">
     <a href="#targets">每日目标</a>
     <a href="#foods">食物库</a>
@@ -49,7 +49,7 @@
 <main>
 
   <header class="page-intro">
-    <div class="eyebrow">三大营养素 · 每日体重</div>
+    <div class="eyebrow">谭食力</div>
     <h1>你的每日目标</h1>
     <p class="sub" id="pageSub">按体重推算的三大元素目标，确定后往下挑食材、调克数。</p>
     <div class="ctas">
@@ -93,6 +93,9 @@
       <h2>食物库</h2>
       <p>学生能负担的常见食材，按每 100 克可食用部分标注三大元素。点食材卡片上的按钮加入今日搭配。</p>
     </div>
+    <div class="custom-food-bar">
+      <button class="btn ghost small" id="addCustomFood">＋ 自定义食材</button>
+    </div>
     <div id="foodGrid"></div>
   </section>
 
@@ -133,6 +136,15 @@
         </label>
         <button class="btn primary" type="submit" id="wSave">保存记录</button>
       </form>
+      <div class="weight-opts">
+        <label class="field"><input type="checkbox" id="autoRecalc"> 体重变化时自动重算目标</label>
+        <label class="field"><select id="weightView"><option value="all">全部</option><option value="month">近 30 天</option><option value="week">近 7 天</option></select></label>
+      </div>
+      <div class="data-io">
+        <button class="btn ghost small" id="exportData">导出数据</button>
+        <button class="btn ghost small" id="importData">导入数据</button>
+        <input type="file" id="importFile" accept=".json" hidden>
+      </div>
       <div id="wMsg" class="msg" role="status"></div>
       <div id="wErr" class="err" role="alert"></div>
       <div class="chartbox" id="wChart"></div>
@@ -179,6 +191,36 @@
   <a href="#purchases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>采购</a>
 </nav>
 
+<div class="overlay" id="customFoodModal" role="dialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfSub" hidden>
+  <div class="modal">
+    <h2 id="cfTitle">添加自定义食材</h2>
+    <p class="sub" id="cfSub">按每 100 克填写三大元素，设置你常用的份量单位与克数。</p>
+    <div class="fields">
+      <label class="field" for="cfName">名称 <input type="text" id="cfName" placeholder="如：食堂红烧肉" required></label>
+      <label class="field" for="cfCat">分类
+        <select id="cfCat" required>
+          <option value="蛋白质">蛋白质</option>
+          <option value="碳水">碳水</option>
+          <option value="脂肪">脂肪</option>
+          <option value="蔬菜">蔬菜</option>
+        </select>
+      </label>
+      <label class="field" for="cfUnitLabel">份量单位标签 <input type="text" id="cfUnitLabel" placeholder="如：块、勺、碗、个" required></label>
+      <label class="field" for="cfGramsPerServing">每份克数 <input type="number" id="cfGramsPerServing" min="1" max="500" step="1" placeholder="50" required></label>
+      <div class="field-row">
+        <label class="field" for="cfP">蛋白质(g/100g) <input type="number" id="cfP" min="0" max="100" step="0.1" placeholder="20" required></label>
+        <label class="field" for="cfC">碳水(g/100g) <input type="number" id="cfC" min="0" max="100" step="0.1" placeholder="5" required></label>
+        <label class="field" for="cfF">脂肪(g/100g) <input type="number" id="cfF" min="0" max="100" step="0.1" placeholder="10" required></label>
+      </div>
+    </div>
+    <div id="cfErr" class="err" role="alert"></div>
+    <div class="actions">
+      <button class="btn ghost" id="cfCancel">取消</button>
+      <button class="btn primary" id="cfSave">保存食材</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const COEF = { p: 1.8, c: 3, f: 0.8 };
 
@@ -209,7 +251,14 @@ const FOODS = [
 ];
 const BY_ID = Object.fromEntries(FOODS.map(f => [f.id, f]));
 
+// 自定义食材
+let customFoods = load('dorm-fit-custom', []);
+function getAllFoods(){ return [...FOODS, ...customFoods]; }
+function rebuildById(){ Object.assign(BY_ID, Object.fromEntries(customFoods.map(f => [f.id, f]))) }
+rebuildById();
+
 function por(f){
+  if (f.gramsPerServing && f.unitLabel) return { g: f.gramsPerServing, label: f.unitLabel };
   if (f.unit === '每100ml') return { g: 100, label: '100ml' };
   if (f.unit.includes('个')) return { g: 50, label: '1个' };
   return { g: 100, label: '100g' };
@@ -238,8 +287,9 @@ const $ = id => document.getElementById(id);
 
 function renderFoods(){
   const cats = ['蛋白质','碳水','脂肪','蔬菜'];
+  const allFoods = getAllFoods();
   $('foodGrid').innerHTML = cats.map(cat => {
-    const cards = FOODS.filter(f => f.cat === cat).map(f => {
+    const cards = allFoods.filter(f => f.cat === cat).map(f => {
       const p = por(f);
       return `
       <div class="fcard">
@@ -390,6 +440,36 @@ document.addEventListener('click', e => {
   if (a === 'add') addFood(id, +(el.dataset.g || 100));
   else if (a === 'plus') addFood(id, 50);
   else if (a === 'minus') addFood(id, -50);
+});
+
+// 自定义食材模态
+$('addCustomFood').addEventListener('click', () => {
+  $('customFoodModal').hidden = false;
+  document.body.style.overflow = 'hidden';
+  $('cfName').focus();
+});
+$('cfCancel').addEventListener('click', () => { $('customFoodModal').hidden = true; document.body.style.overflow = ''; });
+$('customFoodModal').addEventListener('click', e => { if (e.target.id === 'customFoodModal') { $('customFoodModal').hidden = true; document.body.style.overflow = ''; } });
+$('cfSave').addEventListener('click', () => {
+  const name = $('cfName').value.trim();
+  const cat = $('cfCat').value;
+  const unitLabel = $('cfUnitLabel').value.trim();
+  const gramsPerServing = parseInt($('cfGramsPerServing').value);
+  const p = parseFloat($('cfP').value);
+  const c = parseFloat($('cfC').value);
+  const f = parseFloat($('cfF').value);
+  const err = $('cfErr');
+  if (!name || !unitLabel || isNaN(gramsPerServing) || isNaN(p) || isNaN(c) || isNaN(f)) { err.textContent = '请填完所有必填项。'; return; }
+  if (p + c + f > 100) { err.textContent = '三大元素之和不能超过 100g/100g。'; return; }
+  err.textContent = '';
+  const id = 'custom_' + Date.now();
+  customFoods.push({ id, name, cat, unitLabel, gramsPerServing, p, c, f });
+  save('dorm-fit-custom', customFoods);
+  rebuildById();
+  renderFoods();
+  $('customFoodModal').hidden = true;
+  document.body.style.overflow = '';
+  $('cfName').value = ''; $('cfUnitLabel').value = ''; $('cfGramsPerServing').value = ''; $('cfP').value = ''; $('cfC').value = ''; $('cfF').value = ''; $('cfErr').textContent = '';
 });
 
 let armed = '';

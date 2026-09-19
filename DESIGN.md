@@ -1,5 +1,5 @@
 ---
-name: 宿舍增肌减脂计划
+name: 谭食力
 description: 学生的三大营养素与体重记录工具 —— 克制的纸面、唯一翡翠、1px 描边
 colors:
   emerald: "#0f9d6e"
@@ -114,7 +114,7 @@ components:
     height: "9px"
 ---
 
-# Design System: 宿舍增肌减脂计划
+# Design System: 谭食力
 
 ## Overview
 
